@@ -1,0 +1,7 @@
+/Library
+Logs
+/Logs/*.log
+/obj
+/Assembly-CSharp-firstpass.csproj
+/Assembly-CSharp.csproj
+/Assembly-CSharp-Editor.csproj
