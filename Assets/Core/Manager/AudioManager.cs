@@ -2,16 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AudioManager : MonoBehaviour
+public class AudioManager:IManager
 {
-    // Start is called before the first frame update
-    void Start()
+    void IManager.Init()
     {
         
     }
-
-    // Update is called once per frame
-    void Update()
+    void IManager.Dispose()
     {
         
     }

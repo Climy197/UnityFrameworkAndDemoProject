@@ -2,17 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UIManager : MonoBehaviour
+public class UIManager : IManager
 {
-    // Start is called before the first frame update
-    void Start()
+    void IManager.Init()
     {
         
     }
+    void IManager.Dispose()
+    {
 
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
+    
 }

@@ -2,26 +2,24 @@ using UnityEngine;
 
 public abstract class UIBase : MonoBehaviour
 {
-    protected abstract void BindComponent();
-    protected abstract void Init();
-    protected abstract void Show();
-    protected abstract void Hide();
-    protected virtual void OnInit()
+    protected abstract void OnInit();
+    protected abstract void OnShow();
+    protected abstract void OnHide();
+    protected abstract void OnDestroy();
+    void Awake()
     {
-        BindComponent();
-        Init();
-    }
-
-    protected virtual void OnHide()
-    {
-        Hide();
+        this.OnInit();
     }
     void OnEnable()
     {
-
+        this.OnShow();
     }
     void OnDisable()
     {
-
+        this.OnHide();
+    }
+    void Dispose()
+    {
+        this.OnDestroy();
     }
 }
