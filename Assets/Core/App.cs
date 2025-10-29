@@ -15,6 +15,20 @@ public class App : MonoBehaviour
     private UIManager m_UIManager;
     private UpdateManager m_UpdateManager;
 
+    public ResourceManager Res => m_ResourceManager;
+    public UIManager UI => m_UIManager;
+    public EventManager Evt => m_EventManager;
+    public NetManager Net => m_NetManager;
+    public UpdateManager UpdateM => m_UpdateManager;
+    public DBManager DB => m_DBManager;
+    public AudioManager Audio => m_AudioManager;
+
+
+
+
+
+
+
     private void CreateManager()
     {
         m_DBManager = new DBManager();

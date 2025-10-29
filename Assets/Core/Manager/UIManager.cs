@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UIManager : IManager, IShowPopup
+public class UIManager : IManager
 {
     private Transform m_UIRoot;
     internal Transform UI
@@ -27,10 +27,8 @@ public class UIManager : IManager, IShowPopup
     }
 
     Stack<ViewBase> m_UIViewStack = new Stack<ViewBase>();
-
-    Dictionary<UIBase, GameObject> m_UICache = new Dictionary<UIBase, GameObject>();
-
-    List<PopupBase> m_PopupCache = new List<PopupBase>();
+    List<UIBase> m_UICache = new List<UIBase>();
+    List<ViewBase> m_PopupCache = new List<ViewBase>();
 
 
     public void Init()
@@ -48,7 +46,7 @@ public class UIManager : IManager, IShowPopup
         DisposeAllView();
     }
 
-    private void DisposePopup(PopupBase popup)
+    private void DisposePopup(ViewBase popup)
     {
         if (popup == null)
         {
@@ -56,7 +54,7 @@ public class UIManager : IManager, IShowPopup
             return;
         }
         m_PopupCache.Remove(popup);
-        GameObject.Destroy(popup.gameObject);
+
     }
     private void DisposeView(ViewBase view)
     {
@@ -65,7 +63,7 @@ public class UIManager : IManager, IShowPopup
             Debug.LogError("View is null");
             return;
         }
-        GameObject.Destroy(view.gameObject);
+        view.Dispose();
     }
     private void DisposeAllPopup()
     {
@@ -80,8 +78,25 @@ public class UIManager : IManager, IShowPopup
         DisposeView(view);
     }
 
-    public void ShowPopup(PopupBase popup)
+    public void ShowPopup<T>(T popup) where T : ViewBase
     {
-        throw new System.NotImplementedException();
+
     }
+    public void HidePopup<T>(T popup) where T : ViewBase
+    {
+        
+    }
+    public void HomeView<T>(T view) where T : ViewBase
+    {
+
+    }
+    public void PushView<T>(T view) where T : ViewBase
+    {
+
+    }
+    public void BackView()
+    {
+
+    }
+
 }

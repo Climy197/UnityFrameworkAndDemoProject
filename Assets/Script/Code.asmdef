@@ -2,7 +2,8 @@
     "name": "Code",
     "rootNamespace": "",
     "references": [
-        "GUID:99d53f2d6972f6047b3a17f9f2589677"
+        "GUID:99d53f2d6972f6047b3a17f9f2589677",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
