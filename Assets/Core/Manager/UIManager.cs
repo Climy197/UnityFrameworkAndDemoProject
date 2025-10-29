@@ -78,19 +78,24 @@ public class UIManager : IManager
         DisposeView(view);
     }
 
-    public void ShowPopup<T>(T popup) where T : ViewBase
+    public void ShowPopup<T>() where T : ViewBase
     {
 
     }
-    public void HidePopup<T>(T popup) where T : ViewBase
-    {
-        
-    }
-    public void HomeView<T>(T view) where T : ViewBase
+    public void HidePopup<T>() where T : ViewBase
     {
 
     }
-    public void PushView<T>(T view) where T : ViewBase
+    public void HomeView<T>() where T : ViewBase
+    {
+        if (m_UIViewStack.Count < 1)
+        {
+            return;
+        }
+        var view = m_UIViewStack.Pop();
+        DisposeView(view);
+    }
+    public void PushView<T>() where T : ViewBase
     {
 
     }
@@ -98,5 +103,12 @@ public class UIManager : IManager
     {
 
     }
-
+    public ViewBase GetCurrentView()
+    {
+        if (m_UIViewStack.Count == 0)
+        {
+            return null;
+        }
+        return m_UIViewStack.Peek();
+    }
 }

@@ -8,8 +8,8 @@ using YooAsset;
 public class ResourceManager : IManager
 {
     private readonly string DefaultPackageName = "DefaultPackage";
-    Dictionary<string, object> m_AssetCache = new Dictionary<string, object>();
-
+    Dictionary<string, UnityEngine.Object> m_AssetCache = new Dictionary<string, UnityEngine.Object>();
+    
     public async UniTask<T> LoadAssetAsync<T>(string assetName) where T : UnityEngine.Object
     {
         if (m_AssetCache.TryGetValue(assetName, out var asset))
