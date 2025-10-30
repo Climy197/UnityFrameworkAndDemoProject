@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class UIManager : IManager
@@ -78,15 +80,43 @@ public class UIManager : IManager
         DisposeView(view);
     }
 
-    public void ShowPopup<T>() where T : ViewBase
+    public async UniTask<T> ShowPopup<T>() where T : ViewBase, new()
+    {
+        var view = new T();
+        var root = new GameObject();
+        root.name = typeof(T).Name;
+        view.BindRoot(root);
+        root.transform.SetParent(m_UIRoot);
+        await view.Init();
+        view.Show();
+        m_PopupCache.Add(view);
+        return view;
+    }
+    public void HidePopup<T>(T popup) where T : ViewBase
     {
 
     }
-    public void HidePopup<T>() where T : ViewBase
+    public async UniTask HomeView<T>() where T : ViewBase, new()
     {
-
+        foreach (var item in m_UIViewStack)
+        {
+            DisposeView(item);
+        }
+        m_UIViewStack.Clear();
+        await this.PushView<T>();
     }
-    public void HomeView<T>() where T : ViewBase
+    public async UniTask PushView<T>() where T : ViewBase, new()
+    {
+        var view = new T();
+        var root = new GameObject();
+        root.name = typeof(T).Name;
+        view.BindRoot(root);
+        root.transform.SetParent(m_UIRoot);
+        await view.Init();
+        m_UIViewStack.Push(view);
+        view.Show();
+    }
+    public void BackView()
     {
         if (m_UIViewStack.Count < 1)
         {
@@ -94,14 +124,6 @@ public class UIManager : IManager
         }
         var view = m_UIViewStack.Pop();
         DisposeView(view);
-    }
-    public void PushView<T>() where T : ViewBase
-    {
-
-    }
-    public void BackView()
-    {
-
     }
     public ViewBase GetCurrentView()
     {

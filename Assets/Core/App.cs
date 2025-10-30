@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class App : MonoBehaviour
 {
     public static App Instance { get; private set; }
+    public Canvas UICanvas;
 
     private List<IManager> _managers = new List<IManager>();
     private DBManager m_DBManager;
@@ -22,12 +24,6 @@ public class App : MonoBehaviour
     public UpdateManager UpdateM => m_UpdateManager;
     public DBManager DB => m_DBManager;
     public AudioManager Audio => m_AudioManager;
-
-
-
-
-
-
 
     private void CreateManager()
     {
@@ -57,15 +53,50 @@ public class App : MonoBehaviour
 
 
 
-    void Start()
+    async void Start()
     {
+        //启动游戏
+        //查找所有标记为GameEntry的类
+        var entryType = typeof(IEntry);
+        var entries = new List<IEntry>();
 
+        // 扫描所有已加载的程序集（包括 Business.asmdef）
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            // 跳过系统程序集
+            if (assembly.FullName.StartsWith("Unity") ||
+                assembly.FullName.StartsWith("System") ||
+                assembly.FullName.StartsWith("mscorlib") ||
+                assembly.FullName.Contains("Editor"))
+                continue;
+
+            try
+            {
+                foreach (var type in assembly.GetTypes())
+                {
+                    if (!type.IsAbstract && !type.IsInterface && entryType.IsAssignableFrom(type))
+                    {
+                        var instance = (IEntry)Activator.CreateInstance(type);
+                        entries.Add(instance);
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"[App] 扫描程序集失败: {assembly.FullName} | {ex.Message}");
+            }
+        }
+        foreach (var entry in entries)
+        {
+            await entry.Init();
+        }
     }
 
     private void Awake()
     {
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+        DontDestroyOnLoad(this.UICanvas);
+        CreateManager();
     }
     void Update()
     {
@@ -77,7 +108,7 @@ public class App : MonoBehaviour
     }
     void Dispose()
     {
-
+        this.DisposeManager();
     }
 
 

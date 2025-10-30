@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public abstract class UIBase : MonoBehaviour, IBindable
+public abstract class UIBase : MonoBehaviour
 {
     protected virtual void OnInit()
     {
@@ -21,7 +21,10 @@ public abstract class UIBase : MonoBehaviour, IBindable
 
     private void Awake()
     {
-        this.BindComponent();
+        if (this is IBindable)
+        {
+            (this as IBindable).BindComponent();
+        }
         this.OnInit();
     }
     private void OnEnable()
@@ -36,6 +39,4 @@ public abstract class UIBase : MonoBehaviour, IBindable
     {
         this.OnDestroy();
     }
-
-    public abstract void BindComponent();
 }

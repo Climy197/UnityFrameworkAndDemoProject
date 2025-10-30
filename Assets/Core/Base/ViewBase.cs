@@ -33,15 +33,14 @@ public abstract class ViewBase
     {
         m_root = root;
     }
-    async UniTask<T> Init<T>() where T : ViewBase, new()
+    internal async UniTask<UIBase> Init()
     {
-        m_root = new GameObject(typeof(T).Name);
         var content = await this.OnInit();
         content.transform.SetParent(m_root.transform);
         content.transform.localPosition = Vector3.zero;
         content.transform.localRotation = Quaternion.identity;
         content.transform.localScale = Vector3.one;
-        return this as T;
+        return content;
     }
     protected abstract UniTask<UIBase> OnInit();
 

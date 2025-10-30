@@ -1,6 +1,6 @@
-public partial class LoginViewBinder : UIBase
+public partial class LoginViewBinder : UIBase, IBindable
 {
-    public override void BindComponent()
+    public void BindComponent()
     {
         
     }
