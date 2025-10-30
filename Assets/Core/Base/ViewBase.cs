@@ -29,17 +29,21 @@ public abstract class ViewBase
     {
         this.OnDestroy();
     }
-    public void BindRoot(GameObject root)
-    {
-        m_root = root;
-    }
-    internal async UniTask<UIBase> Init()
+
+    internal async UniTask<UIBase> Init(Transform parent)
     {
         var content = await this.OnInit();
-        content.transform.SetParent(m_root.transform);
+        this.m_root = content.gameObject;
+        content.transform.SetParent(parent);
         content.transform.localPosition = Vector3.zero;
         content.transform.localRotation = Quaternion.identity;
         content.transform.localScale = Vector3.one;
+        var rect = content.GetComponent<RectTransform>();
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        
         return content;
     }
     protected abstract UniTask<UIBase> OnInit();

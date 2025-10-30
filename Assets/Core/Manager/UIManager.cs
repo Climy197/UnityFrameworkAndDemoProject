@@ -69,11 +69,9 @@ public class UIManager : IManager
     public async UniTask<T> ShowPopup<T>() where T : ViewBase, new()
     {
         var view = new T();
-        var root = new GameObject();
-        root.name = typeof(T).Name;
-        view.BindRoot(root);
-        root.transform.SetParent(m_UIRoot);
-        await view.Init();
+
+        var popup = await view.Init(this.m_BottomLayer);
+        popup.name = typeof(T).Name;
         view.Show();
         m_PopupCache.Add(view);
         return view;
@@ -94,11 +92,8 @@ public class UIManager : IManager
     public async UniTask PushView<T>() where T : ViewBase, new()
     {
         var view = new T();
-        var root = new GameObject();
-        root.name = typeof(T).Name;
-        view.BindRoot(root);
-        root.transform.SetParent(m_UIRoot);
-        await view.Init();
+        var popup = await view.Init(this.m_MiddleLayer);
+        popup.name = typeof(T).Name;
         m_UIViewStack.Push(view);
         view.Show();
     }
@@ -127,8 +122,36 @@ public class UIManager : IManager
             Debug.LogError("UIRoot is null");
         }
         var bottom = new GameObject();
+        var Component = bottom.AddComponent<RectTransform>();
         bottom.name = "BottomLayer";
         bottom.transform.SetParent(m_UIRoot);
+        Component.localPosition = Vector3.zero;
         m_BottomLayer = bottom.transform;
+        Component.anchorMin = Vector2.zero;
+        Component.anchorMax = Vector2.one;
+        Component.offsetMin = Vector2.zero;
+        Component.offsetMax = Vector2.zero;
+
+        var middle = new GameObject();
+        Component = middle.AddComponent<RectTransform>();
+        middle.name = "MiddleLayer";
+        middle.transform.SetParent(m_UIRoot);
+        Component.localPosition = Vector3.zero;
+        m_MiddleLayer = middle.transform;
+        Component.anchorMin = Vector2.zero;
+        Component.anchorMax = Vector2.one;
+        Component.offsetMin = Vector2.zero;
+        Component.offsetMax = Vector2.zero;
+
+        var top = new GameObject();
+        Component = top.AddComponent<RectTransform>();
+        top.name = "TopLayer";
+        top.transform.SetParent(m_UIRoot);
+        Component.localPosition = Vector3.zero;
+        m_TopLayer = top.transform;
+        Component.anchorMin = Vector2.zero;
+        Component.anchorMax = Vector2.one;
+        Component.offsetMin = Vector2.zero;
+        Component.offsetMax = Vector2.zero;
     }
 }
