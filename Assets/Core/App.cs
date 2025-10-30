@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Threading.Tasks;
 
 public class App : MonoBehaviour
 {
@@ -25,7 +26,7 @@ public class App : MonoBehaviour
     public DBManager DB => m_DBManager;
     public AudioManager Audio => m_AudioManager;
 
-    private void CreateManager()
+    private async Task CreateManager()
     {
         m_DBManager = new DBManager();
         m_AudioManager = new AudioManager();
@@ -41,6 +42,11 @@ public class App : MonoBehaviour
         _managers.Add(m_ResourceManager);
         _managers.Add(m_UIManager);
         _managers.Add(m_UpdateManager);
+        m_UIManager.UI = this.transform;
+        foreach (var manager in _managers)
+        {
+            await manager.Init();
+        }
     }
     private void DisposeManager()
     {
@@ -55,6 +61,7 @@ public class App : MonoBehaviour
 
     async void Start()
     {
+        await CreateManager();
         //启动游戏
         //查找所有标记为GameEntry的类
         var entryType = typeof(IEntry);
@@ -96,7 +103,6 @@ public class App : MonoBehaviour
     {
         Instance = this;
         DontDestroyOnLoad(this.UICanvas);
-        CreateManager();
     }
     void Update()
     {

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 
 
@@ -22,8 +23,9 @@ public partial class LoginView : ViewBase
 
     }
 
-    protected override UniTask<UIBase> OnInit()
+    protected override async UniTask<UIBase> OnInit()
     {
-        throw new System.NotImplementedException();
+        var panel = await UIExtension.Create<LoginPanel>();
+        return panel;
     }
 }

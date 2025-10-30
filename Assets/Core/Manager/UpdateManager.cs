@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 public class UpdateManager : IManager
 {
     private Dictionary<UpdateType, Action> _updateDic = new Dictionary<UpdateType, Action>();
-    void IManager.Init()
+    async UniTask IManager.Init()
     {
 
     }

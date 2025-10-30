@@ -7,7 +7,7 @@ public class DBManager : IManager
 {
     private SQLiteConnection _connection;
     private const string DBName = "GameDB.db";
-    void IManager.Init()
+    async UniTask IManager.Init()
     {
         var dbPath = string.Format(@"Assets/StreamingAssets/{0}", DBName);
         _connection = new SQLiteConnection(dbPath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create);

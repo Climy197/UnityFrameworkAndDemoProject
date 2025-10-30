@@ -1,12 +1,14 @@
+using Cysharp.Threading.Tasks;
+
 public class ConditionManager : IManager
 {
-    public void Init()
+    async UniTask IManager.Init()
     {
-        
+
     }
 
-    public void Dispose()
+    void IManager.Dispose()
     {
-        
+
     }
 }

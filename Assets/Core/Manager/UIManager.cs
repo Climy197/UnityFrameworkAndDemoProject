@@ -15,33 +15,19 @@ public class UIManager : IManager
     private Transform m_MiddleLayer;
     private Transform m_TopLayer;
 
-    public Transform BottomLayer
-    {
-        get { return m_BottomLayer; }
-    }
-    public Transform MiddleLayer
-    {
-        get { return m_MiddleLayer; }
-    }
-    public Transform TopLayer
-    {
-        get { return m_TopLayer; }
-    }
+    public Transform wl => m_BottomLayer;
+
+    public Transform pl => m_MiddleLayer;
+
+    public Transform gl => m_TopLayer;
+
 
     Stack<ViewBase> m_UIViewStack = new Stack<ViewBase>();
     List<UIBase> m_UICache = new List<UIBase>();
     List<ViewBase> m_PopupCache = new List<ViewBase>();
 
 
-    public void Init()
-    {
-        if (m_UIRoot == null)
-        {
-            Debug.LogError("UIRoot is null");
-            return;
-        }
 
-    }
     void IManager.Dispose()
     {
         DisposeAllPopup();
@@ -132,5 +118,17 @@ public class UIManager : IManager
             return null;
         }
         return m_UIViewStack.Peek();
+    }
+
+    async UniTask IManager.Init()
+    {
+        if (m_UIRoot == null)
+        {
+            Debug.LogError("UIRoot is null");
+        }
+        var bottom = new GameObject();
+        bottom.name = "BottomLayer";
+        bottom.transform.SetParent(m_UIRoot);
+        m_BottomLayer = bottom.transform;
     }
 }

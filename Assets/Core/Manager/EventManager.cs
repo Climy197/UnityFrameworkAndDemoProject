@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Cysharp.Threading.Tasks;
 
 public class EventManager : IManager
 {
@@ -11,7 +12,7 @@ public class EventManager : IManager
 
     }
 
-    void IManager.Init()
+    async UniTask IManager.Init()
     {
 
     }

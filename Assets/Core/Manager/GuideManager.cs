@@ -6,7 +6,7 @@ public class GuideManager : IManager
     bool m_OpenGuide = false;
     bool m_pause;
     private Stack<GuideNodeBase> m_GuideRoots = new Stack<GuideNodeBase>();
-    void IManager.Init()
+    async UniTask IManager.Init()
     {
 
     }

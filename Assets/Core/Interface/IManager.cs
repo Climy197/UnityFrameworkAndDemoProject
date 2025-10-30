@@ -1,5 +1,7 @@
+using Cysharp.Threading.Tasks;
+
 internal interface IManager
 {
-    void Init();
+    UniTask Init();
     void Dispose();
 }
