@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ public class UIManager : IManager
 
 
     Stack<ViewBase> m_UIViewStack = new Stack<ViewBase>();
-    List<UIBase> m_UICache = new List<UIBase>();
+    Dictionary<Type, ViewBase> m_UICache = new Dictionary<Type, ViewBase>();
     List<ViewBase> m_PopupCache = new List<ViewBase>();
 
 
@@ -53,58 +54,89 @@ public class UIManager : IManager
         }
         view.Dispose();
     }
-    private void DisposeAllPopup()
+    internal void DisposeAllPopup()
     {
         for (int i = m_PopupCache.Count - 1; i >= 0; i--)
         {
             DisposePopup(m_PopupCache[i]);
         }
+        this.m_PopupCache.Clear();
     }
-    private void DisposeAllView()
+    internal void DisposeAllView()
     {
-        var view = m_UIViewStack.Pop();
-        DisposeView(view);
+        foreach (var view in this.m_UIViewStack)
+        {
+            DisposeView(view);
+        }
+        this.m_UIViewStack.Clear();
     }
 
     public async UniTask<T> ShowPopup<T>() where T : ViewBase, new()
     {
-        var view = new T();
-
-        var popup = await view.Init(this.m_BottomLayer);
-        popup.name = typeof(T).Name;
-        view.Show();
-        m_PopupCache.Add(view);
-        return view;
+        var type = typeof(T);
+        ViewBase view = null;
+        if (this.m_UICache.TryGetValue(type, out view))
+        {
+            view.Show();
+            return view as T;
+        }
+        else
+        {
+            view = new T();
+            var popup = await view.Init(this.m_MiddleLayer);
+            popup.name = typeof(T).Name;
+            view.Show();
+            m_PopupCache.Add(view);
+            m_UICache.Add(type, view);
+            return view as T;
+        }
     }
     public void HidePopup<T>(T popup) where T : ViewBase
     {
-
+        if (!this.m_PopupCache.Contains(popup))
+        {
+            Debug.LogError("试图关闭的窗口不存在");
+            return;
+        }
+        popup.Hide();
+        this.m_PopupCache.Remove(popup);
     }
     public async UniTask HomeView<T>() where T : ViewBase, new()
     {
         foreach (var item in m_UIViewStack)
         {
-            DisposeView(item);
+            item.Hide();
         }
         m_UIViewStack.Clear();
         await this.PushView<T>();
     }
     public async UniTask PushView<T>() where T : ViewBase, new()
     {
-        var view = new T();
-        var popup = await view.Init(this.m_MiddleLayer);
-        popup.name = typeof(T).Name;
-        m_UIViewStack.Push(view);
-        view.Show();
+        var type = typeof(T);
+        ViewBase view = null;
+        if (this.m_UICache.TryGetValue(type, out view))
+        {
+            view.Show();
+            m_UIViewStack.Push(view);
+        }
+        else
+        {
+            view = new T();
+            var popup = await view.Init(this.m_BottomLayer);
+            popup.name = typeof(T).Name;
+            m_UIViewStack.Push(view);
+            m_UICache.Add(type, view);
+            view.Show();
+        }
     }
     public void BackView()
     {
-        if (m_UIViewStack.Count < 1)
+        if (m_UIViewStack.Count <= 1)
         {
             return;
         }
         var view = m_UIViewStack.Pop();
-        DisposeView(view);
+        view.Hide();
     }
     public ViewBase GetCurrentView()
     {

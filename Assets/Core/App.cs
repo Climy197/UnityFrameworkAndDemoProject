@@ -17,6 +17,7 @@ public class App : MonoBehaviour
     private ResourceManager m_ResourceManager;
     private UIManager m_UIManager;
     private UpdateManager m_UpdateManager;
+    private GuideManager m_GuideManager;
 
     public ResourceManager Res => m_ResourceManager;
     public UIManager UI => m_UIManager;
@@ -25,6 +26,7 @@ public class App : MonoBehaviour
     public UpdateManager UpdateM => m_UpdateManager;
     public DBManager DB => m_DBManager;
     public AudioManager Audio => m_AudioManager;
+    public GuideManager guide => m_GuideManager;
 
     private async Task CreateManager()
     {
@@ -35,6 +37,7 @@ public class App : MonoBehaviour
         m_ResourceManager = new ResourceManager();
         m_UIManager = new UIManager();
         m_UpdateManager = new UpdateManager();
+        m_GuideManager = new GuideManager();
         _managers.Add(m_DBManager);
         _managers.Add(m_AudioManager);
         _managers.Add(m_EventManager);
@@ -107,6 +110,7 @@ public class App : MonoBehaviour
     void Update()
     {
         m_UpdateManager.Execute(UpdateType.Update);
+        m_GuideManager.ExecuteGuide();
     }
     void FixedUpdate()
     {
