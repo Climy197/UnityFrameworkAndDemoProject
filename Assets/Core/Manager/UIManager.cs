@@ -15,12 +15,15 @@ public class UIManager : IManager
     private Transform m_BottomLayer;
     private Transform m_MiddleLayer;
     private Transform m_TopLayer;
+    private Transform m_UIPoolRoot;
 
     public Transform wl => m_BottomLayer;
 
     public Transform pl => m_MiddleLayer;
 
     public Transform gl => m_TopLayer;
+    internal Transform UIPoolRoot => this.m_UIPoolRoot;
+
 
 
     Stack<ViewBase> m_UIViewStack = new Stack<ViewBase>();

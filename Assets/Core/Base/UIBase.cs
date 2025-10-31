@@ -1,7 +1,8 @@
 using UnityEngine;
 
-public abstract class UIBase : MonoBehaviour
+public abstract class UIBase : MonoBehaviour, IComponentType
 {
+    public virtual ComponentType Type => ComponentType.standard;
     protected virtual void OnInit()
     {
 

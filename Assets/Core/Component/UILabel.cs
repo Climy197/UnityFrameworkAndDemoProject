@@ -4,6 +4,7 @@ using TMPro;
 [RequireComponent(typeof(TextMeshProUGUI))]
 public class UILabel : UIBase
 {
+    override public ComponentType Type => ComponentType.standard;
     TextMeshProUGUI m_TMP;
     public string text
     {
