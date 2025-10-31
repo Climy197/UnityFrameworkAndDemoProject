@@ -1,6 +1,8 @@
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 // 脚本必须放在名为 "Editor" 的文件夹内
 public static class OverrideUIMenu
@@ -33,95 +35,208 @@ public static class OverrideUIMenu
                 canvas.renderMode = RenderMode.ScreenSpaceOverlay;
                 canvasGo.AddComponent<CanvasScaler>();
                 canvasGo.AddComponent<GraphicRaycaster>();
-                
+
                 // 注册创建 Canvas 的 Undo
                 Undo.RegisterCreatedObjectUndo(canvasGo, "Create Canvas");
             }
             parentGo = canvas.gameObject;
         }
 
-        // =========================================================
-        // 步骤 2: 创建自定义的 Button 预制件或结构
-        // ---------------------------------------------------------
-        // 在这里，你可以替换为实例化一个项目中的 Prefab，
-        // 或者像下面这样手动构建一个自定义结构的 Button。
-        // =========================================================
-        
-        // ** 示例: 创建一个带有 TextMeshProUGUI 的 Button **
-        
-        // 检查项目是否安装了 TextMeshPro
-        bool hasTMP = System.Type.GetType("TMPro.TextMeshProUGUI, Unity.TextMeshPro") != null;
+
 
         // 创建 Button 根对象
-        GameObject buttonGo = new GameObject("MyCustomButton");
+        GameObject buttonGo = new GameObject("UIButton");
         buttonGo.AddComponent<RectTransform>();
         Button button = buttonGo.AddComponent<Button>();
         buttonGo.AddComponent<Image>(); // 默认 UI Button 带有 Image
-
+        buttonGo.AddComponent<UIButton>();
         // 添加文本组件
         GameObject textGo = new GameObject("Text (TMP)");
-        textGo.transform.SetParent(buttonGo.transform, false); 
-        
-        if (hasTMP)
-        {
-            // 如果使用 TextMeshPro，需要添加 TMPro 命名空间
-            // UnityEditor.UI.MenuOptions.AddTextMeshProComponent(buttonGo.transform); 
-            // 这是一个内部方法，为了通用性，我们手动添加并设置。
-            var tmpText = textGo.AddComponent(System.Type.GetType("TMPro.TextMeshProUGUI, Unity.TextMeshPro")) as Component;
-            if (tmpText != null)
-            {
-                // 设置 TextMeshProUGUI 属性（需要反射或导入 TMPro 命名空间）
-                // 简单起见，这里假设你能直接设置
-                // ((TMPro.TextMeshProUGUI)tmpText).text = "Custom Button";
-            }
-        }
-        else
-        {
-            // 否则，使用默认的 Text 组件
-            Text textComponent = textGo.AddComponent<Text>();
-            textComponent.text = "Custom Button";
-            textComponent.alignment = TextAnchor.MiddleCenter;
-            textComponent.color = Color.black; 
-        }
+        textGo.transform.SetParent(buttonGo.transform, false);
+        textGo.AddComponent<TextMeshProUGUI>();
 
-        // 设置文本 RectTransform 覆盖整个 Button
         RectTransform textRt = textGo.GetComponent<RectTransform>();
         textRt.anchorMin = Vector2.zero;
         textRt.anchorMax = Vector2.one;
         textRt.sizeDelta = Vector2.zero;
-        
-        // =========================================================
-        // 步骤 3: 设置父级、对齐并注册 Undo
-        // =========================================================
-        
-        // 确保它被设置为正确的父级，并且在 Hierarchy 中正确对齐
+
         GameObjectUtility.SetParentAndAlign(buttonGo, parentGo);
-        
+
         // 注册创建 Button 的 Undo
         Undo.RegisterCreatedObjectUndo(buttonGo, "Create Custom Button");
-        
+
         // 选中新创建的对象
         Selection.activeObject = buttonGo;
-        
+
         // 设置初始大小（可选）
         RectTransform rt = buttonGo.GetComponent<RectTransform>();
         if (rt != null)
         {
             rt.sizeDelta = new Vector2(160, 30);
         }
-        
+
         // 额外提示：如果你想完全防止默认创建逻辑运行，只需提供一个同路径、同优先级的方法即可。
         // 你不需要手动调用默认的逻辑。
     }
 
     // ********************************************************************
-    // 覆盖默认 Button 的验证逻辑 (可选)
-    // ********************************************************************
-    // [MenuItem("GameObject/UI/Button", true, 10)]
-    // public static bool ValidateCreateCustomButton()
-    // {
-    //     // 返回 true 使菜单项启用，返回 false 禁用它
-    //     // 这里我们让它始终启用
-    //     return true; 
-    // }
+    [MenuItem("GameObject/UI/Text", false, 10)]
+    public static void CreateCustomText(MenuCommand menuCommand)
+    {
+        GameObject go = new GameObject("UILabel");
+        go.AddComponent<RectTransform>();
+        var text = go.AddComponent<TextMeshProUGUI>();
+        go.AddComponent<UILabel>();
+    }
+
+    [MenuItem("GameObject/UI/UIImage", false, 10)]
+    public static void CreateCustomImage(MenuCommand menuCommand)
+    {
+        GameObject go = new GameObject("UIImage");
+        go.AddComponent<RectTransform>();
+        var image = go.AddComponent<Image>();
+        go.AddComponent<UIImage>();
+    }
+    [MenuItem("GameObject/UI/UIScroll View", false, 11)]
+    public static void CreateCustomScrollView(MenuCommand menuCommand)
+    {
+        // 确保存在 Canvas
+        GameObject parentGo = menuCommand.context as GameObject;
+        Canvas canvas = parentGo != null ? parentGo.GetComponentInParent<Canvas>() : null;
+
+        if (canvas == null)
+        {
+            canvas = GameObject.FindObjectOfType<Canvas>();
+            if (canvas == null)
+            {
+                GameObject canvasGo = new GameObject("Canvas");
+                canvas = canvasGo.AddComponent<Canvas>();
+                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+                canvasGo.AddComponent<CanvasScaler>();
+                canvasGo.AddComponent<GraphicRaycaster>();
+                parentGo = canvasGo;
+            }
+        }
+
+        // 创建 ScrollView 主对象
+        GameObject go = new GameObject("UIScrollView");
+        go.transform.SetParent(parentGo.transform, false);
+
+        // 添加 RectTransform 组件
+        RectTransform scrollViewRect = go.AddComponent<RectTransform>();
+        scrollViewRect.anchorMin = Vector2.zero;
+        scrollViewRect.anchorMax = Vector2.one;
+        scrollViewRect.offsetMin = Vector2.zero;
+        scrollViewRect.offsetMax = Vector2.zero;
+
+        // 添加 ScrollRect 组件
+        ScrollRect scrollView = go.AddComponent<ScrollRect>();
+        scrollView.horizontal = false; // 默认只启用垂直滚动
+        scrollView.vertical = true;
+        scrollView.movementType = ScrollRect.MovementType.Clamped;
+
+        // 添加自定义 UIScrollView 组件（如果项目中存在）
+        go.AddComponent<UIScrollView>();
+
+        // 创建 Viewport
+        GameObject viewport = new GameObject("Viewport");
+        viewport.transform.SetParent(go.transform, false);
+        RectTransform viewportRect = viewport.AddComponent<RectTransform>();
+        viewportRect.anchorMin = Vector2.zero;
+        viewportRect.anchorMax = Vector2.one;
+        viewportRect.offsetMin = Vector2.zero;
+        viewportRect.offsetMax = Vector2.zero;
+        viewport.AddComponent<Image>(); // 添加背景图片
+        Mask mask = viewport.AddComponent<Mask>();
+        mask.showMaskGraphic = false;
+
+        // 创建 Content
+        GameObject content = new GameObject("Content");
+        content.transform.SetParent(viewport.transform, false);
+        RectTransform contentRect = content.AddComponent<RectTransform>();
+        contentRect.anchorMin = Vector2.zero;
+        contentRect.anchorMax = Vector2.one;
+        contentRect.offsetMin = Vector2.zero;
+        contentRect.offsetMax = Vector2.zero;
+        contentRect.pivot = new Vector2(0.5f, 1f); // 顶部居中
+
+        // 设置 ScrollRect 的 Viewport 和 Content
+        scrollView.viewport = viewportRect;
+        scrollView.content = contentRect;
+
+        // 创建垂直滚动条
+        CreateScrollbar(go.transform, scrollView, true);
+
+        // 选中新创建的 ScrollView
+        Selection.activeGameObject = go;
+    }
+
+    // 创建滚动条的辅助方法
+    private static void CreateScrollbar(Transform parent, ScrollRect scrollRect, bool isVertical)
+    {
+        GameObject scrollbarGo = new GameObject(isVertical ? "Scrollbar Vertical" : "Scrollbar Horizontal");
+        scrollbarGo.transform.SetParent(parent, false);
+
+        RectTransform scrollbarRect = scrollbarGo.AddComponent<RectTransform>();
+        if (isVertical)
+        {
+            scrollbarRect.anchorMin = new Vector2(1, 0);
+            scrollbarRect.anchorMax = new Vector2(1, 1);
+            scrollbarRect.offsetMin = new Vector2(-20, 0);
+            scrollbarRect.offsetMax = new Vector2(0, 0);
+        }
+        else
+        {
+            scrollbarRect.anchorMin = new Vector2(0, 0);
+            scrollbarRect.anchorMax = new Vector2(1, 0);
+            scrollbarRect.offsetMin = new Vector2(0, 0);
+            scrollbarRect.offsetMax = new Vector2(0, 20);
+        }
+
+        Scrollbar scrollbar = scrollbarGo.AddComponent<Scrollbar>();
+        scrollbar.direction = isVertical ? Scrollbar.Direction.BottomToTop : Scrollbar.Direction.LeftToRight;
+
+        // 设置滚动条的背景
+        GameObject background = new GameObject("Background");
+        background.transform.SetParent(scrollbarGo.transform, false);
+        RectTransform backgroundRect = background.AddComponent<RectTransform>();
+        backgroundRect.anchorMin = Vector2.zero;
+        backgroundRect.anchorMax = Vector2.one;
+        backgroundRect.offsetMin = Vector2.zero;
+        backgroundRect.offsetMax = Vector2.zero;
+        background.AddComponent<Image>();
+
+        // 设置滚动条的滑动区域
+        GameObject handle = new GameObject("Handle");
+        handle.transform.SetParent(scrollbarGo.transform, false);
+        RectTransform handleRect = handle.AddComponent<RectTransform>();
+        if (isVertical)
+        {
+            handleRect.anchorMin = new Vector2(0, 0);
+            handleRect.anchorMax = new Vector2(1, 0.3f);
+            handleRect.offsetMin = Vector2.zero;
+            handleRect.offsetMax = Vector2.zero;
+        }
+        else
+        {
+            handleRect.anchorMin = new Vector2(0, 0);
+            handleRect.anchorMax = new Vector2(0.3f, 1);
+            handleRect.offsetMin = Vector2.zero;
+            handleRect.offsetMax = Vector2.zero;
+        }
+        handle.AddComponent<Image>();
+
+        // 关联滚动条和 ScrollRect
+        scrollbar.handleRect = handleRect;
+        if (isVertical)
+        {
+            scrollRect.verticalScrollbar = scrollbar;
+            scrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
+        }
+        else
+        {
+            scrollRect.horizontalScrollbar = scrollbar;
+            scrollRect.horizontalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
+        }
+    }
 }
