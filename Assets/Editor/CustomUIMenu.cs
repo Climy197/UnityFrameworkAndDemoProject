@@ -83,7 +83,9 @@ public static class OverrideUIMenu
     [MenuItem("GameObject/UI/Text", false, 10)]
     public static void CreateCustomText(MenuCommand menuCommand)
     {
+        GameObject parentGo = menuCommand.context as GameObject;
         GameObject go = new GameObject("UILabel");
+        go.transform.SetParent(parentGo.transform, false);
         go.AddComponent<RectTransform>();
         var text = go.AddComponent<TextMeshProUGUI>();
         go.AddComponent<UILabel>();
@@ -92,7 +94,10 @@ public static class OverrideUIMenu
     [MenuItem("GameObject/UI/UIImage", false, 10)]
     public static void CreateCustomImage(MenuCommand menuCommand)
     {
+        GameObject parentGo = menuCommand.context as GameObject;
+
         GameObject go = new GameObject("UIImage");
+        go.transform.SetParent(parentGo.transform, false);
         go.AddComponent<RectTransform>();
         var image = go.AddComponent<Image>();
         go.AddComponent<UIImage>();
