@@ -1,4 +1,5 @@
 using TMPro;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -107,22 +108,6 @@ public static class OverrideUIMenu
     {
         // 确保存在 Canvas
         GameObject parentGo = menuCommand.context as GameObject;
-        Canvas canvas = parentGo != null ? parentGo.GetComponentInParent<Canvas>() : null;
-
-        if (canvas == null)
-        {
-            canvas = GameObject.FindObjectOfType<Canvas>();
-            if (canvas == null)
-            {
-                GameObject canvasGo = new GameObject("Canvas");
-                canvas = canvasGo.AddComponent<Canvas>();
-                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-                canvasGo.AddComponent<CanvasScaler>();
-                canvasGo.AddComponent<GraphicRaycaster>();
-                parentGo = canvasGo;
-            }
-        }
-
         // 创建 ScrollView 主对象
         GameObject go = new GameObject("UIScrollView");
         go.transform.SetParent(parentGo.transform, false);
@@ -244,4 +229,69 @@ public static class OverrideUIMenu
             scrollRect.horizontalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
         }
     }
+
+
+    [MenuItem("GameObject/UI/UIInput Field", false, 11)]
+    public static void CreateCustomInputField(MenuCommand menuCommand)
+    {
+        GameObject parentGo = menuCommand.context as GameObject;
+        var inputFieldGo = new GameObject("UIInput Field");
+        inputFieldGo.transform.SetParent(parentGo.transform, false);
+        RectTransform rectTransform = inputFieldGo.transform.AddComponent<RectTransform>();
+        // 添加必要组件
+        TMP_InputField inputField = inputFieldGo.AddComponent<TMP_InputField>();
+        // 配置RectTransform（设置默认大小和位置）
+        rectTransform.sizeDelta = new Vector2(160, 30); // 宽160，高30
+        rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        rectTransform.anchoredPosition = Vector2.zero; // 居中显示
+        inputFieldGo.AddComponent<Image>();
+
+
+        // 添加背景（可选）
+        GameObject mask = new GameObject("area");
+        mask.AddComponent<RectMask2D>();
+        mask.transform.SetParent(inputFieldGo.transform, false);
+        mask.GetComponent<RectTransform>().sizeDelta = Vector2.zero;
+        mask.GetComponent<RectTransform>().anchorMin = Vector2.zero;
+        mask.GetComponent<RectTransform>().anchorMax = Vector2.one;
+
+
+        // 创建占位文本（Placeholder）
+        GameObject placeHolder = new GameObject("Placeholder");
+        placeHolder.transform.SetParent(mask.transform, false);
+        TextMeshProUGUI placeholderText = placeHolder.AddComponent<TextMeshProUGUI>();
+        placeholderText.text = "Enter text...";
+        placeholderText.fontSize = 14;
+        placeholderText.color = new Color(0.5f, 0.5f, 0.5f, 0.5f); // 灰色半透明
+        placeHolder.GetComponent<RectTransform>().sizeDelta = Vector2.zero;
+        placeHolder.GetComponent<RectTransform>().anchorMin = Vector2.zero;
+        placeHolder.GetComponent<RectTransform>().anchorMax = Vector2.one;
+
+        // 创建输入文本（Text）
+        GameObject text = new GameObject("Text");
+        text.transform.SetParent(mask.transform, false);
+        TextMeshProUGUI inputText = text.AddComponent<TextMeshProUGUI>();
+        inputText.text = "";
+        inputText.fontSize = 14;
+        inputText.color = Color.black;
+        text.GetComponent<RectTransform>().sizeDelta = Vector2.zero;
+        text.GetComponent<RectTransform>().anchorMin = Vector2.zero;
+        text.GetComponent<RectTransform>().anchorMax = Vector2.one;
+
+        // 配置TMP_InputField属性
+        inputField.textComponent = inputText;
+        inputField.placeholder = placeholderText;
+        inputField.text = "";
+        inputField.characterLimit = 0; // 无字符限制
+        inputField.contentType = TMP_InputField.ContentType.Standard; // 标准输入
+        inputField.lineType = TMP_InputField.LineType.SingleLine; // 单行输入
+        inputField.caretColor = Color.black; // 光标颜色
+        inputField.selectionColor = new Color(0.5f, 0.8f, 1f, 0.5f); // 选中背景色
+        // 选中创建的对象
+        Selection.activeGameObject = inputFieldGo;
+    }
+
+
 }

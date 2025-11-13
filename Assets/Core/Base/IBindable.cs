@@ -1,4 +1,4 @@
 public interface IBindable
 {
-    void BindComponent();
+     void BindComponent();
 }

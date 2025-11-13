@@ -18,6 +18,7 @@ public class App : MonoBehaviour
     private UIManager m_UIManager;
     private UpdateManager m_UpdateManager;
     private GuideManager m_GuideManager;
+    private CustomSceneManager m_SceneManager;
 
     public ResourceManager Res => m_ResourceManager;
     public UIManager UI => m_UIManager;
@@ -27,6 +28,7 @@ public class App : MonoBehaviour
     public DBManager DB => m_DBManager;
     public AudioManager Audio => m_AudioManager;
     public GuideManager guide => m_GuideManager;
+    public CustomSceneManager Scene => m_SceneManager;
 
     private async Task CreateManager()
     {

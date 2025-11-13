@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Mono.CompilerServices.SymbolWriter;
 using UnityEngine;
 using UnityEngine.Scripting;
 using UnityEngine.UI;
@@ -54,6 +53,31 @@ public class UIScrollView : UIBase
                 m_Pool.Recycle(m_ActiveItems[i]);
             }
             m_ActiveItems.RemoveRange(m_ActiveItems.Count - 1 - offSet, offSet);
+        }
+    }
+    public void Locate(int index)
+    {
+        if (m_scrollRect.vertical)
+        {
+            if (index < 0)
+            {
+                this.m_scrollRect.verticalNormalizedPosition = 0;
+            }
+            else if (index > this.Count)
+            {
+                this.m_scrollRect.verticalNormalizedPosition = 1;
+            }
+        }
+        else if (m_scrollRect.horizontal)
+        {
+            if (index < 0)
+            {
+                this.m_scrollRect.horizontalNormalizedPosition = 0;
+            }
+            else if (index > this.Count)
+            {
+                this.m_scrollRect.horizontalNormalizedPosition = 1;
+            }
         }
     }
 }

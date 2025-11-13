@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+[RequireComponent(typeof(Image))]
 public class UIImage : UIBase
 {
     override public ComponentType Type => ComponentType.standard;
