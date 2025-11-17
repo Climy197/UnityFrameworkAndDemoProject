@@ -12,6 +12,7 @@ public class Game
             if (m_instance == null)
             {
                 m_instance = new Game();
+                m_instance.Init();
             }
             return m_instance;
         }
@@ -22,8 +23,9 @@ public class Game
 
 
 
-    public void Init()
+    private void Init()
     {
-
+        m_LoginModule = new LoginModule();
+        m_LoginModule.Init();
     }
 }

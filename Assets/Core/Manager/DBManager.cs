@@ -30,7 +30,16 @@ public class DBManager : IManager
     }
     public async UniTask<List<T>> AsyncQuery<T>(string sql, params object[] args) where T : IDBData, new()
     {
-        var result = await UniTask.RunOnThreadPool(() => _connection.Query<T>(sql, args));
+        var upper = sql.ToUpper();
+        var index = upper.IndexOf("WHERE");
+        if (index != -1)
+        {
+            upper = upper.Substring(index + 5);
+            upper = upper.Trim();
+        }
+        var tableName = typeof(T).Name;
+        var sqlStr = $"SELECT * FROM {tableName} WHERE {upper}";
+        var result = await UniTask.RunOnThreadPool(() => _connection.Query<T>(sqlStr, args));
         return result;
     }
 

@@ -119,18 +119,20 @@ public class UIManager : IManager
         ViewBase view = null;
         if (this.m_UICache.TryGetValue(type, out view))
         {
-            view.Show();
-            m_UIViewStack.Push(view);
         }
         else
         {
             view = new T();
             var popup = await view.Init(this.m_BottomLayer);
             popup.name = typeof(T).Name;
-            m_UIViewStack.Push(view);
             m_UICache.Add(type, view);
-            view.Show();
         }
+        view.Show();
+        if (m_UIViewStack.Count > 0)
+        {
+            m_UIViewStack.Peek().Hide();
+        }
+        m_UIViewStack.Push(view);
     }
     public void BackView()
     {
@@ -139,6 +141,7 @@ public class UIManager : IManager
             return;
         }
         var view = m_UIViewStack.Pop();
+        m_UIViewStack.Peek().Show();
         view.Hide();
     }
     public ViewBase GetCurrentView()
@@ -162,6 +165,7 @@ public class UIManager : IManager
         bottom.transform.SetParent(m_UIRoot);
         Component.localPosition = Vector3.zero;
         m_BottomLayer = bottom.transform;
+        m_BottomLayer.localScale = Vector3.one;
         Component.anchorMin = Vector2.zero;
         Component.anchorMax = Vector2.one;
         Component.offsetMin = Vector2.zero;
@@ -173,6 +177,7 @@ public class UIManager : IManager
         middle.transform.SetParent(m_UIRoot);
         Component.localPosition = Vector3.zero;
         m_MiddleLayer = middle.transform;
+        m_MiddleLayer.localScale = Vector3.one;
         Component.anchorMin = Vector2.zero;
         Component.anchorMax = Vector2.one;
         Component.offsetMin = Vector2.zero;
@@ -184,6 +189,7 @@ public class UIManager : IManager
         top.transform.SetParent(m_UIRoot);
         Component.localPosition = Vector3.zero;
         m_TopLayer = top.transform;
+        m_TopLayer.localScale = Vector3.one;
         Component.anchorMin = Vector2.zero;
         Component.anchorMax = Vector2.one;
         Component.offsetMin = Vector2.zero;

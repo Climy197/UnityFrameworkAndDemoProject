@@ -1,9 +1,11 @@
+using System;
 using TMPro;
 
 public class UIInput : UIBase
 {
     override public ComponentType Type => ComponentType.standard;
     private TMP_InputField m_InputField;
+    public TMP_InputField Input => m_InputField;
     public string text
     {
         set
@@ -18,5 +20,6 @@ public class UIInput : UIBase
     protected override void OnInit()
     {
         m_InputField = this.GetComponent<TMP_InputField>();
+
     }
 }
