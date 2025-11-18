@@ -82,12 +82,13 @@ public class UIManager : IManager
         this.m_UIViewStack.Clear();
     }
 
-    public async UniTask<T> ShowPopup<T>() where T : ViewBase, new()
+    public async UniTask<T> ShowPopup<T>(object data) where T : ViewBase, new()
     {
         var type = typeof(T);
         ViewBase view = null;
         if (this.m_UICache.TryGetValue(type, out view))
         {
+            view.BindData(data);
             view.Show();
             m_PopupCache.Add(view);
             return view as T;
@@ -97,6 +98,7 @@ public class UIManager : IManager
             view = new T();
             var popup = await view.Init(this.m_MiddleLayer);
             popup.name = typeof(T).Name;
+            view.BindData(data);
             view.Show();
             m_PopupCache.Add(view);
             m_UICache.Add(type, view);

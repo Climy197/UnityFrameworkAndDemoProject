@@ -5,6 +5,11 @@ public abstract class ViewBase
 {
     internal GameObject m_root;
     private bool m_Active = false;
+    private object m_Data;
+    internal void BindData(object data)
+    {
+        this.m_Data = data;
+    }
     internal void Show()
     {
         if (this.m_Active)
@@ -45,7 +50,7 @@ public abstract class ViewBase
         rect.anchorMax = Vector2.one;
         rect.offsetMin = Vector2.zero;
         rect.offsetMax = Vector2.zero;
-        
+
         return content;
     }
     protected abstract UniTask<UIBase> OnInit();
