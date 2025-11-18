@@ -25,9 +25,13 @@ public class UIManager : IManager
     internal Transform UIPoolRoot => this.m_UIPoolRoot;
 
 
-
+    //已打开的全屏界面
     Stack<ViewBase> m_UIViewStack = new Stack<ViewBase>();
+
+    //界面缓存
     Dictionary<Type, ViewBase> m_UICache = new Dictionary<Type, ViewBase>();
+
+    //已打开的弹窗
     List<ViewBase> m_PopupCache = new List<ViewBase>();
 
 
@@ -45,8 +49,10 @@ public class UIManager : IManager
             Debug.LogError("Popup is null");
             return;
         }
+        popup.Hide();
+        popup.Dispose();
         m_PopupCache.Remove(popup);
-
+        this.m_UICache.Remove(popup.GetType());
     }
     private void DisposeView(ViewBase view)
     {
@@ -55,7 +61,9 @@ public class UIManager : IManager
             Debug.LogError("View is null");
             return;
         }
+        view.Hide();
         view.Dispose();
+        this.m_UICache.Remove(view.GetType());
     }
     internal void DisposeAllPopup()
     {
@@ -81,6 +89,7 @@ public class UIManager : IManager
         if (this.m_UICache.TryGetValue(type, out view))
         {
             view.Show();
+            m_PopupCache.Add(view);
             return view as T;
         }
         else
@@ -108,13 +117,21 @@ public class UIManager : IManager
     {
         foreach (var item in m_UIViewStack)
         {
-            item.Hide();
+            DisposeView(item);
         }
         m_UIViewStack.Clear();
         await this.PushView<T>();
     }
     public async UniTask PushView<T>() where T : ViewBase, new()
     {
+        foreach (var item in m_UIViewStack)
+        {
+            if (item.GetType() == typeof(T))
+            {
+                Debug.LogError("不可以反复压栈相同窗口");
+                return;
+            }
+        }
         var type = typeof(T);
         ViewBase view = null;
         if (this.m_UICache.TryGetValue(type, out view))

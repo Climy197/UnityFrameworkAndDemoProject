@@ -12,6 +12,7 @@ public abstract class ViewBase
             return;
         }
         this.m_Active = true;
+        this.m_root.transform.SetAsLastSibling();
         this.m_root.SetActive(true);
         this.OnShow();
     }
@@ -27,6 +28,7 @@ public abstract class ViewBase
     }
     internal void Dispose()
     {
+        GameObject.Destroy(this.m_root);
         this.OnDestroy();
     }
 
