@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 
-public partial class LoginView : ViewBase
+public class LoginView : ViewBase
 {
     LoginPanel panel;
     LoginModule m_login;
@@ -59,7 +59,15 @@ public partial class LoginView : ViewBase
             Debug.Log("Password is empty");
             return;
         }
-        await m_login.Login(m_account);
+        var result = await m_login.Login(m_account);
+        if (result == 0)
+        {
+            await App.Instance.UI.HomeView<MainView>();
+        }
+        else
+        {
+            Debug.Log("Login failed");
+        }
     }
 
     protected override void OnShow()
