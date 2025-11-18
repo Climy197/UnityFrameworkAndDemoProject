@@ -1,6 +1,8 @@
+using System.Text;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -293,5 +295,30 @@ public static class OverrideUIMenu
         Selection.activeGameObject = inputFieldGo;
     }
 
+    [MenuItem("GameObject/Generate Bind Script", false, 1)]
+    public static void CreateBindScript()
+    {
+        var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
 
+        if (prefabStage != null)
+        {
+            // 1. 获取顶层 GameObject 名称
+            string className = prefabStage.prefabContentsRoot.name;
+            GameObject root = prefabStage.prefabContentsRoot;
+            var scriptsContent = new StringBuilder();
+            scriptsContent.AppendLine($"using UnityEngine;");
+            scriptsContent.AppendLine($"using UnityEngine.UI;");
+            scriptsContent.AppendLine($"using TMPro;");
+            scriptsContent.AppendLine($"");
+            scriptsContent.AppendLine($"public class {className} : UIBase, IBindable");
+            scriptsContent.AppendLine($"{{");
+            scriptsContent.AppendLine($"    public override ComponentType Type => ComponentType.costume;");
+            scriptsContent.AppendLine($"    void IBindable.BindComponent()");
+            scriptsContent.AppendLine($"    {{");
+            scriptsContent.AppendLine($"    }}");
+            scriptsContent.AppendLine($"}}");
+
+            ScriptGenerator.GenerateScript(className, scriptsContent.ToString());
+        }
+    }
 }
