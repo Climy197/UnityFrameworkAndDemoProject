@@ -64,9 +64,10 @@ public static class ExcelToJson
                     rowCount++;
                 }
 
-                string sheetName = string.IsNullOrEmpty(table.TableName) ? "Sheet1" : table.TableName;
-                string fileName = Path.GetFileNameWithoutExtension(file) +
-                                 (dataSet.Tables.Count > 1 ? "_" + sheetName : "");
+                // string sheetName = string.IsNullOrEmpty(table.TableName) ? "Sheet1" : table.TableName;
+                // string fileName = Path.GetFileNameWithoutExtension(file) +
+                //                  (dataSet.Tables.Count > 1 ? "_" + sheetName : "");
+                var fileName = Path.GetFileNameWithoutExtension(file);
                 string jsonPath = Path.Combine(JSON_FOLDER, fileName + ".json");
 
                 // LitJson 一行搞定，美化输出，完美支持 null、int、long、double、bool、string
@@ -77,6 +78,7 @@ public static class ExcelToJson
                 Debug.Log($"成功 → {fileName}.json");
                 count++;
             }
+            break;
         }
 
         AssetDatabase.Refresh();
