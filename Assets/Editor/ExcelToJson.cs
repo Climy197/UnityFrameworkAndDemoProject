@@ -11,7 +11,7 @@ public static class ExcelToJson
 {
     private const string EXCEL_FOLDER = "Assets/Excels";
     private const string JSON_FOLDER = "Assets/Config";
-    private const string JsonToCs_FOLDER = "Assets/Scripts/Config";
+    private const string JsonToCs_FOLDER = "Assets/Script/Config";
 
     [MenuItem("Tools/Build/生成Json配置表")]
     public static void ConvertAllExcelToJson()
@@ -20,9 +20,18 @@ public static class ExcelToJson
         {
             Directory.CreateDirectory(JSON_FOLDER);
         }
+        if (!Directory.Exists(JsonToCs_FOLDER))
+        {
+            Directory.CreateDirectory(JsonToCs_FOLDER);
+        }
         foreach (var file in Directory.GetFiles(JSON_FOLDER, "*", SearchOption.AllDirectories))
         {
             if (file.EndsWith(".json") || file.EndsWith(".cs") || file.EndsWith(".meta"))
+                File.Delete(file);
+        }
+        foreach (var file in Directory.GetFiles(JsonToCs_FOLDER, "*", SearchOption.AllDirectories))
+        {
+            if (file.EndsWith(".cs") || file.EndsWith(".meta"))
                 File.Delete(file);
         }
 
@@ -39,16 +48,16 @@ public static class ExcelToJson
             {
                 ConfigureDataTable = _ => new ExcelDataTableConfiguration { UseHeaderRow = true }
             });
-
+            var fileName = Path.GetFileNameWithoutExtension(file);
             foreach (DataTable table in dataSet.Tables)
             {
                 var list = new List<Dictionary<string, object>>();
                 int rowCount = 0;
                 foreach (DataRow row in table.Rows)
                 {
-                    if (rowCount <= 1)
+                    if (rowCount < 1)
                     {
-
+                        WriteJsonToCsFile(fileName, table.Columns, row);
                     }
                     else
                     {
@@ -67,7 +76,7 @@ public static class ExcelToJson
                 // string sheetName = string.IsNullOrEmpty(table.TableName) ? "Sheet1" : table.TableName;
                 // string fileName = Path.GetFileNameWithoutExtension(file) +
                 //                  (dataSet.Tables.Count > 1 ? "_" + sheetName : "");
-                var fileName = Path.GetFileNameWithoutExtension(file);
+
                 string jsonPath = Path.Combine(JSON_FOLDER, fileName + ".json");
 
                 // LitJson 一行搞定，美化输出，完美支持 null、int、long、double、bool、string
@@ -84,6 +93,27 @@ public static class ExcelToJson
         AssetDatabase.Refresh();
         EditorUtility.DisplayDialog("全部完成！", $"成功转换 {count} 张配置表！", "OK");
     }
+
+    private static void WriteJsonToCsFile(string fileName, DataColumnCollection columns, DataRow row)
+    {
+        var csPath = Path.Combine(JsonToCs_FOLDER, fileName + "Config.cs");
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("using System.Collections.Generic;");
+        sb.AppendLine("using UnityEngine;");
+        sb.AppendLine();
+        sb.AppendLine($"public class {fileName}Config");
+        sb.AppendLine("{");
+        sb.AppendLine("    public static Dictionary<int, " + fileName + "Config> Dict = new Dictionary<int, " + fileName + "Config>();");
+        sb.AppendLine();
+        foreach (DataColumn col in columns)
+        {
+            sb.AppendLine($"    public  {row[col]} {col.ColumnName};");
+        }
+        sb.AppendLine("}");
+        File.WriteAllText(csPath, sb.ToString(), System.Text.Encoding.UTF8);
+        Debug.Log($"成功 → {fileName}Config.cs");
+    }
+
     private static string LitJsonChinesePretty(object obj)
     {
         var writer = new JsonWriter

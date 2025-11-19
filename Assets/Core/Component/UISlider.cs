@@ -19,5 +19,9 @@ public class UISlider : UIBase
         }
     }
 
-
+    protected override void OnInit()
+    {
+        base.OnInit();
+        m_slider = this.GetComponent<Slider>();
+    }
 }
