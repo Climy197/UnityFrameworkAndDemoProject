@@ -23,6 +23,5 @@ public class UIInput : UIBase
     protected override void OnInit()
     {
         m_InputField = this.GetComponent<TMP_InputField>();
-
     }
 }

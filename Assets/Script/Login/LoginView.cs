@@ -24,22 +24,22 @@ public class LoginView : ViewBase
 
     private void OnPasswordChanged(string code)
     {
-        m_account.Password = code;
+        m_account.password = code;
     }
 
     private void OnAccountIDChanged(string value)
     {
-        m_account.AccountID = value;
+        m_account.account = value;
     }
 
     private async UniTask Register()
     {
-        if (m_account.AccountID.Length == 0)
+        if (m_account.account.Length == 0)
         {
             Debug.Log("AccountID is empty");
             return;
         }
-        if (m_account.Password.Length == 0)
+        if (m_account.password.Length == 0)
         {
             Debug.Log("Password is empty");
             return;
@@ -49,12 +49,12 @@ public class LoginView : ViewBase
 
     public async UniTask Login()
     {
-        if (m_account.AccountID.Length == 0)
+        if (m_account.account.Length == 0)
         {
             Debug.Log("AccountID is empty");
             return;
         }
-        if (m_account.Password.Length == 0)
+        if (m_account.password.Length == 0)
         {
             Debug.Log("Password is empty");
             return;

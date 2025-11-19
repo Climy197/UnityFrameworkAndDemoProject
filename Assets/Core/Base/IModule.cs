@@ -1,4 +1,7 @@
+using Cysharp.Threading.Tasks;
+
 public interface IModule
 {
-    void Init();
+    UniTask Init();
+    void Save();
 }

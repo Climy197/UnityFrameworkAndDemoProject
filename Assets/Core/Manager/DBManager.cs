@@ -11,7 +11,12 @@ public class DBManager : IManager
     {
         var dbPath = string.Format(@"Assets/StreamingAssets/{0}", DBName);
         _connection = new SQLiteConnection(dbPath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create);
-        this._connection.CreateTable<Account>();
+
+    }
+    public async UniTask<int> AsyncCreateTable<T>()where T : IDBData
+    {
+        var result = await UniTask.RunOnThreadPool(() => _connection.CreateTable<T>());
+        return result;
     }
     public async UniTask<int> AsyncInsert<T>(T data) where T : IDBData
     {

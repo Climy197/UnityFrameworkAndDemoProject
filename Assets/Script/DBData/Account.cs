@@ -6,15 +6,16 @@ public class Account : IDBData
     // [PrimaryKey]: 定义为主键 (唯一且不可重复)
     // [AutoIncrement]: 定义为自增，每次插入新行时，ID会自动+1
     // 账号ID
-    [PrimaryKey]
-    public string AccountID { get; set; }
+    [PrimaryKey, AutoIncrement]
+    public int uid { get; set; }
+    public string account { get; set; }
     // 密码
-    public string Password { get; set; }
+    public string password { get; set; }
 
 
     public Account()
     {
-        AccountID = "";
-        Password = "";
+        account = "";
+        password = "";
     }
 }

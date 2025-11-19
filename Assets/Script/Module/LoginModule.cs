@@ -1,15 +1,16 @@
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class LoginModule : IModule
 {
-    public void Init()
+    public async UniTask Init()
     {
-
+        await App.Instance.DB.AsyncCreateTable<Account>();
     }
     public async Task<int> Login(Account account)
     {
-        var result = await App.Instance.DB.AsyncQuery<Account>("SELECT * FROM Account WHERE AccountID = ? ", account.AccountID);
+        var result = await App.Instance.DB.AsyncQuery<Account>("SELECT * FROM Account WHERE AccountID = ? ", account.account);
         if (result.Count == 0)
         {
             Debug.Log("AccountID not found");
@@ -17,7 +18,7 @@ public class LoginModule : IModule
         }
         else
         {
-            if (result[0].Password == account.Password)
+            if (result[0].password == account.password)
             {
 
                 Debug.Log("Login Success");
@@ -32,7 +33,7 @@ public class LoginModule : IModule
     }
     public async Task<int> Register(Account account)
     {
-        var queryResult = await App.Instance.DB.AsyncQuery<Account>(" AccountID = ? ", account.AccountID);
+        var queryResult = await App.Instance.DB.AsyncQuery<Account>(" AccountID = ? ", account.account);
         if (queryResult.Count != 0)
         {
             Debug.Log("AccountID already exist");
@@ -49,5 +50,10 @@ public class LoginModule : IModule
             Debug.Log("Register Success");
             return 0;
         }
+    }
+
+    public void Save()
+    {
+        
     }
 }
