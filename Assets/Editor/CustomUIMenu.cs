@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using Unity.VisualScripting;
@@ -294,6 +295,22 @@ public static class OverrideUIMenu
         // 选中创建的对象
         Selection.activeGameObject = inputFieldGo;
     }
+    [MenuItem("GameObject/UI/UINode", false, 11)]
+    public static void CreateNode(MenuCommand menuCommand)
+    {
+        GameObject parentGo = menuCommand.context as GameObject;
+        var nodeGo = new GameObject("Node");
+        nodeGo.transform.SetParent(parentGo.transform, false);
+        RectTransform rectTransform = nodeGo.transform.AddComponent<RectTransform>();
+        nodeGo.AddComponent<UITransform>();
+        // 配置RectTransform（设置默认大小和位置）
+        rectTransform.sizeDelta = new Vector2(100, 100); // 宽160，高30
+        rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        rectTransform.anchoredPosition = Vector2.zero; // 居中显示
+    }
+
 
     [MenuItem("GameObject/Generate Bind Script", false, 1)]
     public static void CreateBindScript()
@@ -305,6 +322,46 @@ public static class OverrideUIMenu
             // 1. 获取顶层 GameObject 名称
             string className = prefabStage.prefabContentsRoot.name;
             GameObject root = prefabStage.prefabContentsRoot;
+
+            var result = new Dictionary<UIBase, string>();
+            var queue = new Queue<(GameObject go, string path)>();
+            queue.Enqueue((root, ""));
+            while (queue.Count > 0)
+            {
+                var (go, path) = queue.Dequeue();
+                if (go.TryGetComponent<UIBase>(out var uiBase))
+                {
+                    result[uiBase] = path;
+                    var type = uiBase as IComponentType;
+                    if (type.Type == ComponentType.standard || path == "")
+                    {
+                        foreach (Transform child in go.transform)
+                        {
+                            queue.Enqueue((child.gameObject, string.IsNullOrEmpty(path) ? child.name : $"{path}/{child.name}"));
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (Transform child in go.transform)
+                    {
+                        queue.Enqueue((child.gameObject, string.IsNullOrEmpty(path) ? child.name : $"{path}/{child.name}"));
+                    }
+                }
+            }
+            var variableContent = new StringBuilder();
+            foreach (var item in result)
+            {
+                var uiBase = item.Key;
+                variableContent.AppendLine($"    public {uiBase.GetType().Name} m_{uiBase.name} {{ get; private set; }}");
+            }
+            var pathContent = new StringBuilder();
+            foreach (var item in result)
+            {
+                var uiBase = item.Key;
+                pathContent.AppendLine($"        m_{uiBase.name} = transform.Find(\"{item.Value}\").GetComponent<{uiBase.GetType().Name}>();");
+            }
+
             var scriptsContent = new StringBuilder();
             scriptsContent.AppendLine($"using UnityEngine;");
             scriptsContent.AppendLine($"using UnityEngine.UI;");
@@ -313,8 +370,10 @@ public static class OverrideUIMenu
             scriptsContent.AppendLine($"public class {className} : UIBase, IBindable");
             scriptsContent.AppendLine($"{{");
             scriptsContent.AppendLine($"    public override ComponentType Type => ComponentType.costume;");
+            scriptsContent.AppendLine($"{variableContent}");
             scriptsContent.AppendLine($"    void IBindable.BindComponent()");
             scriptsContent.AppendLine($"    {{");
+            scriptsContent.AppendLine($"{pathContent}");
             scriptsContent.AppendLine($"    }}");
             scriptsContent.AppendLine($"}}");
 

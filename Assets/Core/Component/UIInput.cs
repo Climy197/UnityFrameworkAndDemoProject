@@ -1,6 +1,9 @@
 using System;
 using TMPro;
+using UnityEngine;
 
+
+[RequireComponent(typeof(TMP_InputField))]
 public class UIInput : UIBase
 {
     override public ComponentType Type => ComponentType.standard;
