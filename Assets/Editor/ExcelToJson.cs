@@ -5,13 +5,16 @@ using System;
 using ExcelDataReader;
 using UnityEditor;
 using UnityEngine;
-using LitJson;   // ← 你已经导入的这个
+using LitJson;
+using Unity.VisualScripting;
+using System.Runtime.InteropServices;   // ← 你已经导入的这个
 
 public static class ExcelToJson
 {
     private const string EXCEL_FOLDER = "Assets/Excels";
     private const string JSON_FOLDER = "Assets/Config";
     private const string JsonToCs_FOLDER = "Assets/Script/Config";
+    private const string ConfigCollection_FlODER = "Assets/Script/Root";
 
     [MenuItem("Tools/Build/生成Json配置表")]
     public static void ConvertAllExcelToJson()
@@ -37,6 +40,8 @@ public static class ExcelToJson
 
         var files = Directory.GetFiles(EXCEL_FOLDER, "*.xlsx", SearchOption.AllDirectories);
         int count = 0;
+        var variableContent = new System.Text.StringBuilder();
+        var initContent = new System.Text.StringBuilder();
         foreach (var file in files)
         {
             if (file.Contains("~") || file.Contains("#")) continue;
@@ -77,39 +82,77 @@ public static class ExcelToJson
                 // string fileName = Path.GetFileNameWithoutExtension(file) +
                 //                  (dataSet.Tables.Count > 1 ? "_" + sheetName : "");
 
-                string jsonPath = Path.Combine(JSON_FOLDER, fileName + ".json");
+                string jsonPath = Path.Combine(JSON_FOLDER, fileName + "Config.json");
 
                 // LitJson 一行搞定，美化输出，完美支持 null、int、long、double、bool、string
                 string json = LitJsonChinesePretty(list);
                 // 想更漂亮？再格式化一下（LitJson 自带）
 
                 File.WriteAllText(jsonPath, json, System.Text.Encoding.UTF8);
-                Debug.Log($"成功 → {fileName}.json");
+                Debug.Log($"成功 → {fileName}Config.json");
                 count++;
+                break;
             }
-            break;
+            variableContent.AppendLine($"    private {fileName}ConfigCollection {fileName}ConfigCollection = new {fileName}ConfigCollection();");
+            variableContent.AppendLine($"    public {fileName}ConfigCollection {fileName} => {fileName}ConfigCollection;");
+            initContent.AppendLine($"        await {fileName}ConfigCollection.Init();");
         }
-
+        WriteConfigCollectionFile(variableContent.ToString(), initContent.ToString());
         AssetDatabase.Refresh();
         EditorUtility.DisplayDialog("全部完成！", $"成功转换 {count} 张配置表！", "OK");
     }
-
+    private static void WriteConfigCollectionFile(string variableContent, string initContent)
+    {
+        var path = Path.Combine(ConfigCollection_FlODER, "Config.cs");
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("using Cysharp.Threading.Tasks;");
+        sb.AppendLine();
+        sb.AppendLine("public class Config");
+        sb.AppendLine("{");
+        sb.AppendLine(variableContent);
+        sb.AppendLine("    public async UniTask Init()");
+        sb.AppendLine("    {");
+        sb.AppendLine(initContent);
+        sb.AppendLine("    }");
+        sb.AppendLine("}");
+        File.WriteAllText(path, sb.ToString(), System.Text.Encoding.UTF8);
+        Debug.Log($"成功 → Config.cs");
+    }
     private static void WriteJsonToCsFile(string fileName, DataColumnCollection columns, DataRow row)
     {
         var csPath = Path.Combine(JsonToCs_FOLDER, fileName + "Config.cs");
         var sb = new System.Text.StringBuilder();
         sb.AppendLine("using System.Collections.Generic;");
         sb.AppendLine("using UnityEngine;");
+        sb.AppendLine("using LitJson;");
+        sb.AppendLine("using Cysharp.Threading.Tasks;");
         sb.AppendLine();
         sb.AppendLine($"public class {fileName}Config");
         sb.AppendLine("{");
-        sb.AppendLine("    public static Dictionary<int, " + fileName + "Config> Dict = new Dictionary<int, " + fileName + "Config>();");
         sb.AppendLine();
         foreach (DataColumn col in columns)
         {
             sb.AppendLine($"    public  {row[col]} {col.ColumnName};");
         }
         sb.AppendLine("}");
+        sb.AppendLine();
+        sb.AppendLine($"public class {fileName}ConfigCollection");
+        sb.AppendLine("{");
+        sb.AppendLine($"    private Dictionary<int, {fileName}Config> m_Dict ;");
+        sb.AppendLine($"    private List<{fileName}Config> m_List ;");
+        sb.AppendLine();
+        sb.AppendLine($"    public async UniTask Init()");
+        sb.AppendLine($"    {{");
+        sb.AppendLine($"        var json = await App.Instance.Res.LoadAssetAsync<TextAsset>(\"{fileName}Config\");");
+        sb.AppendLine($"        m_List = JsonMapper.ToObject<List<{fileName}Config>>(json.text);");
+        sb.AppendLine($"        m_Dict = new Dictionary<int, {fileName}Config>();");
+        sb.AppendLine($"        foreach (var item in m_List)");
+        sb.AppendLine($"        {{");
+        sb.AppendLine($"            m_Dict.Add((int)item.ID, item);");
+        sb.AppendLine($"        }}");
+        sb.AppendLine($"    }}");
+        sb.AppendLine("}");
+
         File.WriteAllText(csPath, sb.ToString(), System.Text.Encoding.UTF8);
         Debug.Log($"成功 → {fileName}Config.cs");
     }

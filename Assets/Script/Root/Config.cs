@@ -1,11 +1,13 @@
-using System.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 
 public class Config
 {
-    private ItemConfigCollection itemConfigCollection = new ItemConfigCollection();
-    public ItemConfigCollection Item => itemConfigCollection;
-    public async Task Init()
+    private ItemConfigCollection ItemConfigCollection = new ItemConfigCollection();
+    public ItemConfigCollection Item => ItemConfigCollection;
+
+    public async UniTask Init()
     {
-        await itemConfigCollection.Init();
+        await ItemConfigCollection.Init();
+
     }
 }

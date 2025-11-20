@@ -1,22 +1,24 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using LitJson;
-using System.Threading.Tasks;
-using System;
+using Cysharp.Threading.Tasks;
 
 public class ItemConfig
 {
-    public double ID;
-    public string Name;
-    public double Type;
-    public string Desc;
-    public string Pic;
+
+    public  long ID;
+    public  string Name;
+    public  int Type;
+    public  string Desc;
+    public  string Pic;
 }
+
 public class ItemConfigCollection
 {
-    private Dictionary<int, ItemConfig> m_Dict;
-    private List<ItemConfig> m_List;
-    public async Task Init()
+    private Dictionary<int, ItemConfig> m_Dict ;
+    private List<ItemConfig> m_List ;
+
+    public async UniTask Init()
     {
         var json = await App.Instance.Res.LoadAssetAsync<TextAsset>("ItemConfig");
         m_List = JsonMapper.ToObject<List<ItemConfig>>(json.text);
@@ -25,14 +27,5 @@ public class ItemConfigCollection
         {
             m_Dict.Add((int)item.ID, item);
         }
-        Debug.Log($"ItemConfigCollection Init {m_List.Count}");
-    }
-    public ItemConfig Find(Predicate<ItemConfig> predicate)
-    {
-        return m_List.Find(predicate);
-    }
-    public ItemConfig Get(int id)
-    {
-        return m_Dict[id];
     }
 }
