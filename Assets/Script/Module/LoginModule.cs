@@ -10,7 +10,7 @@ public class LoginModule : IModule
     }
     public async Task<int> Login(Account account)
     {
-        var result = await App.Instance.DB.AsyncQuery<Account>("SELECT * FROM Account WHERE AccountID = ? ", account.account);
+        var result = await App.Instance.DB.AsyncQuery<Account>($"{nameof(Account.account)}  = ? ", account.account);
         if (result.Count == 0)
         {
             Debug.Log("AccountID not found");
@@ -33,7 +33,7 @@ public class LoginModule : IModule
     }
     public async Task<int> Register(Account account)
     {
-        var queryResult = await App.Instance.DB.AsyncQuery<Account>(" AccountID = ? ", account.account);
+        var queryResult = await App.Instance.DB.AsyncQuery<Account>($"{nameof(Account.account)}  = ? ", account.account);
         if (queryResult.Count != 0)
         {
             Debug.Log("AccountID already exist");
@@ -54,6 +54,6 @@ public class LoginModule : IModule
 
     public void Save()
     {
-        
+
     }
 }

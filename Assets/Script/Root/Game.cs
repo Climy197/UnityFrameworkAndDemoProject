@@ -1,31 +1,40 @@
+using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
+
 public class Game
 {
     private Game()
     {
 
     }
-    private static Game m_instance;
-    public static Game instance
+    public static Game instance;
+
+    public static async UniTask Create()
     {
-        get
-        {
-            if (m_instance == null)
-            {
-                m_instance = new Game();
-                m_instance.Init();
-            }
-            return m_instance;
-        }
+        instance = new Game();
+        await instance.Init();
     }
+
     private LoginModule m_LoginModule;
 
     public LoginModule Login => m_LoginModule;
 
+    private async UniTask Init()
+    {
+        await this.InitResource();
+        await this.InitModule();
 
-
-    private void Init()
+    }
+    private Config m_Config;
+    private async UniTask InitResource()
+    {
+        m_Config = new Config();
+        await m_Config.Init();
+    }
+    private async UniTask InitModule()
     {
         m_LoginModule = new LoginModule();
-        m_LoginModule.Init();
+        await m_LoginModule.Init();
     }
+
 }
