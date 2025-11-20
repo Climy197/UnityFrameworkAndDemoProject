@@ -7,7 +7,8 @@ using UnityEditor;
 using UnityEngine;
 using LitJson;
 using Unity.VisualScripting;
-using System.Runtime.InteropServices;   // ← 你已经导入的这个
+using System.Runtime.InteropServices;
+using Unity.Plastic.Newtonsoft.Json;   // ← 你已经导入的这个
 
 public static class ExcelToJson
 {
@@ -124,8 +125,9 @@ public static class ExcelToJson
         var sb = new System.Text.StringBuilder();
         sb.AppendLine("using System.Collections.Generic;");
         sb.AppendLine("using UnityEngine;");
-        sb.AppendLine("using LitJson;");
+        sb.AppendLine("using Unity.Plastic.Newtonsoft.Json;");
         sb.AppendLine("using Cysharp.Threading.Tasks;");
+        sb.AppendLine("using System;");
         sb.AppendLine();
         sb.AppendLine($"public class {fileName}Config");
         sb.AppendLine("{");
@@ -144,13 +146,21 @@ public static class ExcelToJson
         sb.AppendLine($"    public async UniTask Init()");
         sb.AppendLine($"    {{");
         sb.AppendLine($"        var json = await App.Instance.Res.LoadAssetAsync<TextAsset>(\"{fileName}Config\");");
-        sb.AppendLine($"        m_List = JsonMapper.ToObject<List<{fileName}Config>>(json.text);");
+        sb.AppendLine($"        m_List = JsonConvert.DeserializeObject<List<{fileName}Config>>(json.text);");
         sb.AppendLine($"        m_Dict = new Dictionary<int, {fileName}Config>();");
         sb.AppendLine($"        foreach (var item in m_List)");
         sb.AppendLine($"        {{");
         sb.AppendLine($"            m_Dict.Add((int)item.ID, item);");
         sb.AppendLine($"        }}");
         sb.AppendLine($"    }}");
+        sb.AppendLine($"    public {fileName}Config Find(Predicate<{fileName}Config> predicate)");
+        sb.AppendLine($"    {{");
+        sb.AppendLine($"        return m_List.Find(predicate);");
+        sb.AppendLine($"     }}");
+        sb.AppendLine($"     public {fileName}Config Get(int id)");
+        sb.AppendLine($"     {{");
+        sb.AppendLine($"        return m_Dict[id];");
+        sb.AppendLine($"     }}");
         sb.AppendLine("}");
 
         File.WriteAllText(csPath, sb.ToString(), System.Text.Encoding.UTF8);
@@ -159,15 +169,21 @@ public static class ExcelToJson
 
     private static string LitJsonChinesePretty(object obj)
     {
-        var writer = new JsonWriter
-        {
-            PrettyPrint = true,
-            IndentValue = 4      // 可改成 2，如果你喜欢紧凑一点
-        };
-
-        JsonMapper.ToJson(obj, writer);
-
+        // var writer = new JsonWriter
+        // {
+        //     PrettyPrint = true,
+        //     IndentValue = 4      // 可改成 2，如果你喜欢紧凑一点
+        // };
+        // JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+        // {
+        //     Formatting = Formatting.Indented,
+        //     FloatFormatHandling = FloatFormatHandling.Symbol,
+        //     Culture = System.Globalization.CultureInfo.InvariantCulture,
+        // };
+        var result = JsonConvert.SerializeObject(obj, Formatting.Indented);
+        // var result = System.Text.RegularExpressions.Regex.Unescape(writer.ToString());
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"(?<=\b\d+)\.0+(?=\D|$)", "");
         // 一行魔法：把所有 \uXXXX 还原成原始汉字
-        return System.Text.RegularExpressions.Regex.Unescape(writer.ToString());
+        return result;
     }
 }
